@@ -12,22 +12,32 @@ int main (){
     // everything is working correctly
     init();
     while (1) {
-        int sum = 0;
-        for(int i=-160; i<160; i+=10){
-            int w = get_pixel(128,i+160,3);
-            if (w > 100)
-                sum = sum + i*w;
+        double sum = 0;
+
+        double kp = 0.5;
+
+        int proportional_error;
+        int error;
+        for (int i=0; i<320; i++){
+
+            error = (i-160)*get_pixel(i, 100, 3);
+
+            proportional_error = error*kp;
+
+            sum = sum + proportional_error;
         }
-        printf("%d\n" ,sum);
-        if (sum > 0) {
-            set_motor(1,127);
-            set_motor(2,-127);
-        } else if (sum == 0) {
-            set_motor(1,127);
-            set_motor(2,127);
+        sum /=1000;
+        printf("Signal is: %f\n", sum );
+        if (sum < -5) {
+            set_motor(2,10);
+            set_motor(1,0);
+        } else
+        if (sum > 5) {
+            set_motor(2,0);
+            set_motor(1,10);
         } else {
-            set_motor(1,-127);
-            set_motor(2,127);
+            set_motor(1,50);
+            set_motor(2,50);
         }
     }
     return 0;
