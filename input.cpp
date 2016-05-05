@@ -36,8 +36,8 @@ int main (){
             set_motor(2,0);
             set_motor(1,10);
         } else {
-            set_motor(1,50);
-            set_motor(2,50);
+            set_motor(1,127);
+            set_motor(2,127);
         }
     }
     return 0;
