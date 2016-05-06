@@ -28,12 +28,12 @@ int main (){
         sum /=1000;
         printf("Signal is: %f\n", sum );
         if (sum < -5) {
-            set_motor(2,10);
+            set_motor(2,sum);
             set_motor(1,0);
         } else
         if (sum > 5) {
             set_motor(2,0);
-            set_motor(1,10);
+            set_motor(1,sum);
         } else {
             set_motor(1,127);
             set_motor(2,127);
