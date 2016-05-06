@@ -11,21 +11,20 @@ int main (){
     // This sets up the RPi hardware and ensures
     // everything is working correctly
     init();
+    int previous_error = 0;
     while (1) {
         double sum = 0;
 
         double kp = 0.5;
-
         int proportional_error;
         int error;
         for (int i=0; i<320; i++){
-
             error = (i-160)*get_pixel(i, 100, 3);
-
             proportional_error = error*kp;
-
             sum = sum + proportional_error;
         }
+        //sum = sum - previous_error;
+        //previous_error = sum;
         sum /=1000;
         printf("Signal is: %f\n", sum );
         if (sum < -5) {
