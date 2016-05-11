@@ -11,33 +11,43 @@ int main (){
     // This sets up the RPi hardware and ensures
     // everything is working correctly
     init();
+    float kp = 0.5;
+    float ki = 0.5;
+    float kd = 5;
     int previous_error = 0;
+    int total_error = 0;
+    clock_t begin, end;
     while (1) {
-        double sum = 0;
+        double time_spent;
 
-        double kp = 0.5;
-        int proportional_error;
-        int error;
+        begin = clock();
+
+        int current_error = 0;
+        int proportional_signal;
+        int derivative_signal;
+        int integral_signal;
         for (int i=0; i<320; i++){
-            error = (i-160)*get_pixel(i, 100, 3);
-            proportional_error = error*kp;
-            sum = sum + proportional_error;
+            int w = get_pixel(i, 120, 3);
+            if (w > 127) {
+                int error = (i - 160) * w;
+                current_error = current_error + error;
+            }
         }
-        //sum = sum - previous_error;
-        //previous_error = sum;
-        sum /=1000;
-        printf("Signal is: %f\n", sum );
-        if (sum < -5) {
-            set_motor(2,sum);
-            set_motor(1,0);
-        } else
-        if (sum > 5) {
-            set_motor(2,0);
-            set_motor(1,sum);
-        } else {
-            set_motor(1,127);
-            set_motor(2,127);
-        }
+        Sleep(0,100000);
+        proportional_signal = current_error*kp;
+        end = clock();
+        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        derivative_signal = ((current_error-previous_error)/time_spent)*kd;
+        integral_signal = ((total_error+current_error)/time_spent)*ki;
+        total_error = total_error+current_error;
+        previous_error = current_error;
+        printf("Proportional signal is: %d", proportional_signal );
+        printf("Integral signal is: %d", integral_signal );
+        printf("Derivative signal is: %d", derivative_signal );
+        int pid = proportional_signal+integral_signal+derivative_signal;
+        pid /= (160*1*kp);
+        set_motor(1, (proportional_signal/(160*1*kp))*255);
+        set_motor(2, (proportional_signal/(160*1*kp))*255);
     }
     return 0;
 }
