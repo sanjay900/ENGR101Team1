@@ -13,7 +13,7 @@ int main (){
     init();
     float kp = 0.5;
     float ki = 0.5;
-    float kd = 5;
+    float kd = 1;
     int previous_error = 0;
     int total_error = 0;
     clock_t begin, end;
@@ -33,21 +33,18 @@ int main (){
                 current_error = current_error + error;
             }
         }
-        Sleep(0,100000);
         proportional_signal = current_error*kp;
-        end = clock();
-        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        derivative_signal = ((current_error-previous_error)/time_spent)*kd;
-        integral_signal = ((total_error+current_error)/time_spent)*ki;
+        //derivative_signal = ((current_error-previous_error))*kd;
+        //integral_signal = ((total_error+current_error))*ki;
         total_error = total_error+current_error;
-        previous_error = current_error;
+            previous_error = current_error;
         printf("Proportional signal is: %d", proportional_signal );
-        printf("Integral signal is: %d", integral_signal );
-        printf("Derivative signal is: %d", derivative_signal );
-        int pid = proportional_signal+integral_signal+derivative_signal;
+        //printf("Integral signal is: %d", integral_signal );
+        //printf("Derivative signal is: %d", derivative_signal );
+        int pid = proportional_signal/*+integral_signal+derivative_signal*/;
         pid /= (160*1*kp);
-        set_motor(1, (proportional_signal/(160*1*kp))*255);
-        set_motor(2, (proportional_signal/(160*1*kp))*255);
+        set_motor(1, -pid);
+        set_motor(2, -pid);
     }
     return 0;
 }
