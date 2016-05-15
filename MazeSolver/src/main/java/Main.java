@@ -29,6 +29,7 @@ public class Main {
             Stack<Tile> stack = new Stack<>();
             stack.push(t);
             tiles.add(t);
+            Tile random;
             //We push each tile on, but as we go, the current tile will slowly branch out but then track backwards
             //The stack is empty once we reach the last tile
             while (!stack.isEmpty()) {
@@ -36,15 +37,14 @@ public class Main {
                 //If randomwall returns null, pop a new tile from the stack, this will backtrack to the last tile
                 //And then check all its directions until we find a tile with free directions
                 //If the stack is empty we have backtracked to the start.
-                while (t.randomWall() == null) {
+                while ((random = t.randomWall()) == null) {
                     if (stack.isEmpty()) break;
                     stack.pop();
                     if (stack.isEmpty()) break;
                     t = stack.peek();
                 }
                 if (stack.isEmpty()) break;
-                //Pick a random tile
-                t = t.randomWall();
+                t = random;
                 tiles.add(t);
                 stack.push(t);
             }
@@ -62,6 +62,7 @@ public class Main {
             Direction currentDir = current.closed.contains(new Direction(0, -1)) ? new Direction(1, 0) : new Direction(0, -1);
             while (!current.equals(new Tile(0, 0))) {
                 current.fill();
+                //Try ccw, then forward then cw, effectively prioritizing ccw and following that wall.
                 if (current.isOpen(currentDir.ccw())) {
                     currentDir = currentDir.ccw();
                     current = current.getRelativeReal(currentDir);

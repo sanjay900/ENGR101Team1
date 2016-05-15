@@ -37,7 +37,7 @@ public class Tile {
                 if (this.getRelative(c).inBounds()) tiles.add(c);
             }
          */
-        List<Direction> tiles = Direction.values().stream().filter(c -> this.getRelative(c).inBounds()).collect(Collectors.toList());
+        List<Direction> tiles = closed.stream().filter(c -> this.getRelative(c).inBounds()).collect(Collectors.toList());
         //There are no tiles that are possible
         if (tiles.isEmpty()) return null;
         //Pick a random direction from the list of directions that are available
@@ -76,6 +76,7 @@ public class Tile {
     }
     //(for maze solving) get a tile that has already been placed in a direction
     public Tile getRelativeReal(Direction dir) {
+
         return Main.instance.tiles.stream().collect(Collectors.toList()).stream().filter(t -> t.equals(getRelative(dir))).findAny().get();
     }
     //Check if two tiles are equal by position not reference
