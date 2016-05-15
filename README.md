@@ -24,3 +24,9 @@ Hardware:
 - Use two ir sensors at angles off the front of the robot to navigate the maze
 - Shorten board
 
+12th May
+Software:
+- Set up IntelliJ, Java3D, GitBash on laptops to edit arena simulation
+- Finished constructing lines for quadrants 2 and 3 in the simulator
+Hardware:
+- 3D printed parts for robot
