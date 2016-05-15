@@ -37,9 +37,10 @@ Hardware 2:
 Software:
 - Set up IntelliJ, Java3D, GitBash on laptops to edit arena simulation
 - Finished constructing lines for quadrants 2 and 3 in the simulator
+
 Hardware:
 - 3D printed parts for robot
-- 
+
 Hardware 2:
 - Converted the sketches to 3D models using Google Sketchup with the extension "CadSpan" to create 3D printable ".stl" files.
 - Started printing first 3D model of the swivel wheel.
