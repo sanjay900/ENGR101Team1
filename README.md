@@ -24,9 +24,26 @@ Hardware:
 - Use two ir sensors at angles off the front of the robot to navigate the maze
 - Shorten board
 
+Hardware 2: 
+- Disscussed with team to find additional hardware parts for the AVC.
+- Started sketching parts for the robot which could be 3D printed.
+- Discussed with the software team to find what camera angle would be best suited for the robot itself.
+- Sketched final camera mount design with the selected camera angle of 118°.
+- Made changes to camera mount design by adding mounts for 2 IR sensors on both sides.
+- Sketched new swivel front wheel design to be 3D printed.
+
+
 12th May
 Software:
 - Set up IntelliJ, Java3D, GitBash on laptops to edit arena simulation
 - Finished constructing lines for quadrants 2 and 3 in the simulator
+
 Hardware:
 - 3D printed parts for robot
+
+Hardware 2:
+- Converted the sketches to 3D models using Google Sketchup with the extension "CadSpan" to create 3D printable ".stl" files.
+- Started printing first 3D model of the swivel wheel.
+- Successfully 3D printed swivel wheel.
+- Redesigned swivel wheel since the 3D printed part was slighty too large for the wheel size.
+- Started converting camera and sensor mount sketch to 3D model.
