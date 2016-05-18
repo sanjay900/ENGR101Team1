@@ -15,6 +15,8 @@ static int BASE_SPEED = 88;
 int main (){
     init();
     float current_error = 0;
+    float left_error = 0;
+    float right_error = 0;
     float previous_error = 0;
     float total_error = 0;
 
@@ -24,10 +26,21 @@ int main (){
     while (1) {
         take_picture();
         current_error = 0;
+
         for(int i=0; i<320; i++){
             if(get_pixel(i,120,3)>WHITE){
                 current_error += (i-160);
+                if (i < 160) {
+                    left_error += i;
+                } else {
+                    right_error +=i;
+                }
             }
+        }
+        //Implement a favour right, straight then left algo here.
+        //This may require reading more pixels than just whats in the center, but thats okay
+        if (right_error > left_error) {
+
         }
         current_error/=(160);
         total_error = total_error+current_error;
