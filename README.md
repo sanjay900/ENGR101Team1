@@ -47,3 +47,14 @@ Hardware 2:
 - Successfully 3D printed swivel wheel.
 - Redesigned swivel wheel since the 3D printed part was slighty too large for the wheel size.
 - Started converting camera and sensor mount sketch to 3D model.
+
+19th May
+Software: 
+- Started writing maze solving code
+To do: complete maze solving code and test
+
+Hardware:
+- Shortened board
+- Changed positioning of RPi on board
+- Increased height to make room for battery placement
+To do: IR sensors
