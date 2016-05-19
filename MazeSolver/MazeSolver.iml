@@ -15,7 +15,6 @@
     <orderEntry type="library" name="Maven: java3d:j3d-core:1.6" level="project" />
     <orderEntry type="library" name="Maven: java3d:j3d-core-utils:1.6" level="project" />
     <orderEntry type="library" name="Maven: java3d:vecmath:1.6" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: java3d:libj3dcore-ogl-linux:1.6" level="project" />
     <orderEntry type="library" name="Maven: nz.ac.victoria.ecs:ecs:100" level="project" />
   </component>
 </module>
