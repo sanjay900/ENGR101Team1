@@ -27,7 +27,6 @@ int main (){
     double proportional_signal;
     double integral_signal;
     double derivative_signal;
-    //read_analog(0) = front, read_analog(1) = right, read_analog(2) = back, read_analog(3) = left;
     //While left and right not triggered
     /*connect_to_server((char *) "130.195.6.196", 1024);
     //sends a message to the connected server
@@ -35,9 +34,9 @@ int main (){
     //receives message from the connected server
     char message[24];
     receive_from_server(message);
-
     send_to_server(message);*/
-    //Put something in this loop to break out.
+    //read_analog(0) = left, read_analog(1) = front, read_analog(2) = right, read_analog(3) = back;
+    //TODO: Put something in this loop to break out. going to need to test sensor values to work this one out
     while (/*read_analog(1) < 10 && read_analog(3) < 10*/1) {
         //connects to server with the ip address 192.168.1.2
 
@@ -59,10 +58,11 @@ int main (){
                ahead_current_error += (i-160);
            }
         }
+        printf("%f\n",ahead_current_error/120*kp);
         //Implement a favour straight, left then right algo here.
         //This may require reading more pixels than just whats in the center, but thats okay
-        if (ahead_current_error/120*kp < 10 && ahead_current_error/120*kp > -10) {
-            if (current_error/120*kp > 10 || current_error/120*kp < -10)
+        if (ahead_current_error/120*kp < 2 && ahead_current_error/120*kp > -2) {
+            if (current_error/120*kp > 2 || current_error/120*kp < -2)
             current_error = 0;
         } else {
             //Theres a line to the left, and a line to the right. Lets go left
