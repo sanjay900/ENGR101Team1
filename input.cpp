@@ -84,26 +84,50 @@ int main (){
     printf("%s\n","Switching to maze mode");
     //This probably wont work, but is a basis of something similar to what we want to do.
     //At this point, you have to test the real robot.
-    while (1) {
-        //Turn right
-        if (read_analog(0) < 10) {
-            set_motor(1, -(BASE_SPEED +  10));
-            set_motor(2, -(BASE_SPEED - 10));
-        } else {
-            //360 if trapped
-            if (read_analog(1) < 10) {
-                set_motor(1, -(BASE_SPEED));
-                set_motor(2, (BASE_SPEED));
+    //Check camera view in maze to set robot to MAZE MODE. Full black?
+    
+    double unc = 8;
+    //width of maze path - width of robot
+    //check units of return val of IR
+
+    while(true) {
+        double right = read_analog(2);
+        double left  = read_analog(1);
+        double front = read_analog(0);
+        //double back = read_analog(A3);
+
+        if(0<right && right<unc){
+            if(front > 3) {
+                if(right - left > 1 && right - left < unc){
+                    //motor1 is left motor
+                    //motor2 is right motor
+                    setMotor(1, BASE_SPEED+5);
+                    setMotor(2, BASE_SPEED);
+                    //move trajectory slightly to the right
+                } else if (left - right > 1){
+                    setMotor(1, BASE_SPEED);
+                    setMotor(2, BASE_SPEED+5);
+                    //move trajectory slightly left
+                } else {
+                    setMotor(1, BASE_SPEED);
+                    setMotor(2, BASE_SPEED);
+                    //move robot forward
+                }
             } else {
-                if (read_analog(0) < 10 && read_analog(2) < 10) {
-                    set_motor(1, -(BASE_SPEED));
-                    set_motor(2, -(BASE_SPEED));
-                } else if (read_analog(2) < 10) {
+                if(0 < left && left < unc){
+                    //turn around
+                    setMotor(1, -(BASE_SPEED));
+                    setMotor(2, BASE_SPEED);
+                } else {
+                    setMotor(1, BASE_SPEED/3);
+                    setMotor(2, BASE_SPEED);
                     //turn left
-                    set_motor(1, -(BASE_SPEED -  10));
-                    set_motor(2, -(BASE_SPEED + 10));
                 }
             }
+        } else {
+            setMotor(1, BASE_SPEED);
+            setMotor(2, BASE_SPEED/3);
+            //turn right;
         }
     }
 }
