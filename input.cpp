@@ -101,32 +101,32 @@ int main (){
                 if(right - left > 1 && right - left < unc){
                     //motor1 is left motor
                     //motor2 is right motor
-                    setMotor(1, BASE_SPEED+5);
-                    setMotor(2, BASE_SPEED);
+                    set_motor(1, BASE_SPEED+5);
+                    set_motor(2, BASE_SPEED);
                     //move trajectory slightly to the right
                 } else if (left - right > 1){
-                    setMotor(1, BASE_SPEED);
-                    setMotor(2, BASE_SPEED+5);
+                    set_motor(1, BASE_SPEED);
+                    set_motor(2, BASE_SPEED+5);
                     //move trajectory slightly left
                 } else {
-                    setMotor(1, BASE_SPEED);
-                    setMotor(2, BASE_SPEED);
+                    set_motor(1, BASE_SPEED);
+                    set_motor(2, BASE_SPEED);
                     //move robot forward
                 }
             } else {
                 if(0 < left && left < unc){
                     //turn around
-                    setMotor(1, -(BASE_SPEED));
-                    setMotor(2, BASE_SPEED);
+                    set_motor(1, -(BASE_SPEED));
+                    set_motor(2, BASE_SPEED);
                 } else {
-                    setMotor(1, BASE_SPEED/3);
-                    setMotor(2, BASE_SPEED);
+                    set_motor(1, BASE_SPEED/3);
+                    set_motor(2, BASE_SPEED);
                     //turn left
                 }
             }
         } else {
-            setMotor(1, BASE_SPEED);
-            setMotor(2, BASE_SPEED/3);
+            set_motor(1, BASE_SPEED);
+            set_motor(2, BASE_SPEED/3);
             //turn right;
         }
     }
