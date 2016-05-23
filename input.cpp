@@ -37,7 +37,7 @@ int main (){
     send_to_server(message);*/
     //read_analog(0) = left, read_analog(1) = front, read_analog(2) = right, read_analog(3) = back;
     //TODO: Put something in this loop to break out. going to need to test sensor values to work this one out
-    while (/*read_analog(1) < 10 && read_analog(3) < 10*/1) {
+    while (/*read_analog(1) < 10 && read_analog(3) < 10*/ get_pixel(160, 120, 3)<WHITE && get_pixel(160, 120, 0)>WHITE) {
         //connects to server with the ip address 192.168.1.2
 
         take_picture();
