@@ -103,8 +103,8 @@ counter = 0;
         //If we can turn left, turn 90 degrees left
         if (current_error < -10) {
             while (current_error < -10) {
-                set_motor(2,127);
-		set_motor(1,10);
+                //set_motor(2,127);
+		        //set_motor(1,10);
                 for(int i=0; i<320; i++){
                     if(get_pixel(i,120,3)>WHITE){
                         current_error += (i-160);
@@ -116,7 +116,7 @@ counter = 0;
         //We cant turn left, but can turn right.
         if (current_error > 10) {
             while (current_error > 10) {
-                set_motor(2,127);
+                //set_motor(2,127);
                 for(int i=0; i<320; i++){
                     if(get_pixel(i,120,3)>WHITE){
                         current_error += (i-160);
