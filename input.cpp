@@ -15,33 +15,28 @@ static float ki = 0;
 static float kd = 0;
 static int WHITE = 127;
 static int BASE_SPEED = 40;
-typedef enum {UP, LEFT, RIGHT,DOWN} direction;
-void
-signal_callback_handler(int signum)
+void signal_callback_handler(int signum)
 {
-   printf("Caught signal %d\n",signum);
-   // Cleanup and close up stuff here
-	set_motor(1,0);
-	set_motor(2,0);
-   // Terminate program
-   exit(signum);
+    //We caught sig 2 (ctrl+c)
+    printf("Caught signal %d\n",signum);
+    //Kill motors
+    set_motor(1,0);
+    set_motor(2,0);
+    // Terminate program
+    exit(signum);
 }
 
 int main (){
-	init();
-	signal(2, signal_callback_handler);
-   
+    init();
+    //Add a ctrl+c handler that stops the motors
+    signal(2, signal_callback_handler);
     float current_error = 0;
-    float ahead_current_error = 0;
-    float left_error = 0;
-    float right_error = 0;
     float previous_error = 0;
     float total_error = 0;
-
     double proportional_signal;
     double integral_signal;
     double derivative_signal;
-    //While left and right not triggered
+    //TODO Uncomment this and test it
     /*connect_to_server((char *) "130.195.6.196", 1024);
     //sends a message to the connected server
     send_to_server((char *) "Please");
@@ -49,43 +44,22 @@ int main (){
     char message[24];
     receive_from_server(message);
     send_to_server(message);*/
-    //read_analog(0) = left, read_analog(1) = front, read_analog(2) = right, read_analog(3) = back;
-    //TODO: Put something in this loop to break out. going to need to test sensor values to work this one out
-    while (1) {
-        //connects to server with the ip address 192.168.1.2
-
+    bool outofQuadThree = true;
+    while (outofQuadThree) {
         take_picture();
         current_error = 0;
-        ahead_current_error = 0;
-        left_error = 0;
-        right_error = 0;
-       for(int i=0; i<320; i++){
+        outofQuadThree = true;
+        for(int i=0; i<320; i++){
+            //The idea with this, is if we come up to a straight line, we switch to maze solving mode
+            //So if a pixel is not white, we havent hit the line yet
             if(get_pixel(i,120,3)>WHITE){
                 current_error += (i-160);
-                if (i < 160) {
-                    left_error += i;
-                } else {
-                    right_error +=i;
-                }
+            } else {
+                outofQuadThree = false;
             }
-           if(get_pixel(i,140,3)>WHITE){
-               ahead_current_error += (i-160);
-           }
         }
-        printf("%f\n",current_error);
-	printf("%f\n",ahead_current_error);
-        //Implement a favour straight, left then right algo here.
-        //This may require reading more pixels than just whats in the center, but thats okay
-            //Theres a line to the left, and a line to the right. Lets go left
-            if (left_error/160*kp > 10 && right_error > left_error) {
-                printf("%f\n",left_error/160*kp);
-                set_motor(1,10);
-		set_motor(2,-80);
-		Sleep(1,000000);
-            }
-        
-
-        current_error/=(160);
+        if (outofQuadThree) break;
+        current_error/=160;
         total_error = total_error+current_error;
         integral_signal = total_error*ki;
         derivative_signal = (current_error-previous_error/0.1)*kd;
@@ -93,13 +67,53 @@ int main (){
         int pid =- int(proportional_signal+integral_signal+derivative_signal);
         set_motor(1, (BASE_SPEED +  pid));
         set_motor(2, (BASE_SPEED - pid));
-	printf("pid:%d\n",pid);
+        printf("pid:%d\n",pid);
+    }
+    printf("%s\n","Switching to Quadrant 3");
+    while (!outofQuadThree) {
+        outofQuadThree = false;
+        for(int i=0; i<320; i++){
+            //If the grayness is > white, add to error
+            if(get_pixel(i,120,3)>WHITE){
+                current_error += (i-160);
+                //Only the red is > 127, we hit the end, break out
+            } else if (get_pixel(i,120,0)>WHITE) {
+                outofQuadThree = true;
+                break;
+            }
+        }
+        //Solve as if this is a maze, left following, until we hit red.
+        if (outofQuadThree) break;
+        //If we can turn left, turn 90 degrees left
+        if (current_error < -10) {
+            while (current_error < -10) {
+                set_motor(1,BASE_SPEED);
+                for(int i=0; i<320; i++){
+                    if(get_pixel(i,120,3)>WHITE){
+                        current_error += (i-160);
+                    }
+                }
+            }
+            set_motor(1,0);
+        }
+        //We cant turn left, but can turn right.
+        if (current_error > 10) {
+            while (current_error > 10) {
+                set_motor(2,BASE_SPEED);
+                for(int i=0; i<320; i++){
+                    if(get_pixel(i,120,3)>WHITE){
+                        current_error += (i-160);
+                    }
+                }
+            }
+            set_motor(2,0);
+        }
+        //None of the above, go straight.
+        set_motor(1,BASE_SPEED);
+        set_motor(2,BASE_SPEED);
     }
     printf("%s\n","Switching to maze mode");
-    //This probably wont work, but is a basis of something similar to what we want to do.
-    //At this point, you have to test the real robot.
-    //Check camera view in maze to set robot to MAZE MODE. Full black?
-    
+
     double unc = 8;
     //width of maze path - width of robot
     //check units of return val of IR

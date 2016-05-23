@@ -1,3 +1,4 @@
+
 output:input.cpp
 	gcc -L/usr/lib -o output input.cpp -lE101
 program_NAME := output
@@ -19,7 +20,7 @@ LDFLAGS += $(foreach library,$(program_LIBRARIES),-l$(library))
 all: $(program_NAME)
 
 $(program_NAME): $(program_OBJS)
-	$(LINK.cc) $(program_OBJS) -o $(program_NAME)
+	$(LINK.cc) -o $(program_NAME) $(program_OBJS)
 
 clean:
 	@- $(RM) $(program_NAME)
