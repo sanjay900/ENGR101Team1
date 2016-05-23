@@ -37,7 +37,7 @@ int main (){
     double integral_signal;
     double derivative_signal;
     float counter =0;
-	bool first = false;
+	bool first = true;
     //TODO Uncomment this and test it
     /*connect_to_server((char *) "130.195.6.196", 1024);
     //sends a message to the connected server
@@ -47,7 +47,7 @@ int main (){
     receive_from_server(message);
     send_to_server(message);*/
     bool outofQuadThree = true;
-    while (1) {
+    while (0) {
         take_picture();
         current_error = 0;
 counter = 0;
@@ -62,9 +62,17 @@ counter = 0;
 	} 
         }
 	current_error/=160;
-
-        if (counter > 280 && !first)  break;
-	if (counter > 280) first = false;
+	//printf("COUNTER:%d",counter);
+        if (counter > 200 && !first)  {
+	//printf("TESTSETSST");
+	break;
+}
+	if (counter > 200) {
+		first = false;
+		set_motor(1,127);
+		set_motor(2,127);
+		Sleep(2,0);
+	}
 //        current_error/=160;
         total_error = total_error+current_error;
         integral_signal = total_error*ki;
@@ -75,11 +83,8 @@ counter = 0;
         set_motor(2, (BASE_SPEED - pid));
         printf("pid:%f\n",current_error);
     }
-    set_motor(1,0);
-	set_motor(2,0);
-    return 0;
     printf("%s\n","Switching to Quadrant 3");
-    while (outofQuadThree) {
+    while (true || outofQuadThree) {
         outofQuadThree = false;
         for(int i=0; i<320; i++){
             //If the grayness is > white, add to error
@@ -93,10 +98,13 @@ counter = 0;
         }
         //Solve as if this is a maze, left following, until we hit red.
         if (outofQuadThree) break;
+	current_error/=160;
+	printf("%f\n",current_error);
         //If we can turn left, turn 90 degrees left
         if (current_error < -10) {
             while (current_error < -10) {
-                set_motor(1,BASE_SPEED);
+                set_motor(2,127);
+		set_motor(1,10);
                 for(int i=0; i<320; i++){
                     if(get_pixel(i,120,3)>WHITE){
                         current_error += (i-160);
@@ -108,7 +116,7 @@ counter = 0;
         //We cant turn left, but can turn right.
         if (current_error > 10) {
             while (current_error > 10) {
-                set_motor(2,BASE_SPEED);
+                set_motor(2,127);
                 for(int i=0; i<320; i++){
                     if(get_pixel(i,120,3)>WHITE){
                         current_error += (i-160);
@@ -118,8 +126,8 @@ counter = 0;
             set_motor(2,0);
         }
         //None of the above, go straight.
-        set_motor(1,BASE_SPEED);
-        set_motor(2,BASE_SPEED);
+        set_motor(1,127);
+        set_motor(2,127);
     }
 
     printf("%s\n","Switching to maze mode");
