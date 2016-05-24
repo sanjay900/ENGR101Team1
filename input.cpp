@@ -15,6 +15,11 @@ static float ki = 0;
 static float kd = 0;
 static int WHITE = 127;
 static int BASE_SPEED = 45;
+float current_error = 0;
+int counter = 0;
+
+void set_error();
+
 void signal_callback_handler(int signum)
 {
     //We caught sig 2 (ctrl+c)
@@ -30,14 +35,12 @@ int main (){
     init();
     //Add a ctrl+c handler that stops the motors
     signal(2, signal_callback_handler);
-    float current_error = 0;
     float previous_error = 0;
     float total_error = 0;
     double proportional_signal;
     double integral_signal;
     double derivative_signal;
-    float counter =0;
-	bool first = true;
+    bool first = true;
     //TODO Uncomment this and test it
     /*connect_to_server((char *) "130.195.6.196", 1024);
     //sends a message to the connected server
@@ -50,7 +53,7 @@ int main (){
     while (0) {
         take_picture();
         current_error = 0;
-counter = 0;
+        counter = 0;
         outofQuadThree = false;
         for(int i=0; i<320; i++){
             //The idea with this, is if we come up to a straight line, we switch to maze solving mode
@@ -58,21 +61,20 @@ counter = 0;
             if(get_pixel(i,120,3)>WHITE){
                 current_error += (i-160);
                 outofQuadThree = true;
-		counter++; 
-	} 
+                counter++;
+            }
         }
-	current_error/=160;
-	//printf("COUNTER:%d",counter);
+        current_error/=160;
+        //printf("COUNTER:%d",counter);
         if (counter > 200 && !first)  {
-	//printf("TESTSETSST");
-	break;
-}
-	if (counter > 200) {
-		first = false;
-		set_motor(1,127);
-		set_motor(2,127);
-		Sleep(2,0);
-	}
+            break;
+        }
+        if (counter > 200) {
+            first = false;
+            set_motor(1,127);
+            set_motor(2,127);
+            Sleep(2,0);
+        }
 //        current_error/=160;
         total_error = total_error+current_error;
         integral_signal = total_error*ki;
@@ -84,18 +86,8 @@ counter = 0;
         printf("pid:%f\n",current_error);
     }
     printf("%s\n","Switching to Quadrant 3");
-    while (true || outofQuadThree) {
-        outofQuadThree = false;
-        for(int i=0; i<320; i++){
-            //If the grayness is > white, add to error
-            if(get_pixel(i,120,3)>WHITE){
-                current_error += (i-160);
-                //Only the red is > 127, we hit the end, break out
-            } else if (get_pixel(i,120,0)>WHITE) {
-                outofQuadThree = true;
-                break;
-            }
-        }
+    while (1) {
+        set_error();
         if(current_error < 10 && current_error > -10){
         	//practically straight
         	if(current_error>0){
@@ -114,6 +106,7 @@ counter = 0;
         } else if(current_error < -10){
         	//line far off left
         	while(current_error < -10){
+                set_error();
         		//hard code 90 deg left turn?
         		//set_motor(1, BASE_SPEED);
         		set_motor(2, BASE_SPEED);
@@ -121,10 +114,12 @@ counter = 0;
         } else if(counter > 200){
         	//T junction, turn left
         	while(!(current_error<10 && current_error>-10)){
+                set_error();
         		set_motor(2, BASE_SPEED);
         	}
     	} else if(current_error > 10){
     		while(current_error > 10){
+                set_error();
     			set_motor(1, BASE_SPEED);
         		//set_motor(2, BASE_SPEED);
     		}
@@ -175,6 +170,18 @@ counter = 0;
             set_motor(1, BASE_SPEED);
             set_motor(2, BASE_SPEED/3);
             //turn right;
+        }
+    }
+}
+
+void set_error() {
+    current_error = 0;
+    for(int i=0; i<320; i++){
+        //If the grayness is > white, add to error
+        if(get_pixel(i,120,3)>WHITE){
+            current_error += (i-160);
+            counter++;
+            //Only the red is > 127, we hit the end, break out
         }
     }
 }
