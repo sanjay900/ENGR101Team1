@@ -96,38 +96,39 @@ counter = 0;
                 break;
             }
         }
-        //Solve as if this is a maze, left following, until we hit red.
-        if (outofQuadThree) break;
-	current_error/=160;
-	printf("%f\n",current_error);
-        //If we can turn left, turn 90 degrees left
-        if (current_error < -10) {
-            while (current_error < -10) {
-                //set_motor(2,127);
-		        //set_motor(1,10);
-                for(int i=0; i<320; i++){
-                    if(get_pixel(i,120,3)>WHITE){
-                        current_error += (i-160);
-                    }
-                }
-            }
-            set_motor(1,0);
-        }
-        //We cant turn left, but can turn right.
-        if (current_error > 10) {
-            while (current_error > 10) {
-                //set_motor(2,127);
-                for(int i=0; i<320; i++){
-                    if(get_pixel(i,120,3)>WHITE){
-                        current_error += (i-160);
-                    }
-                }
-            }
-            set_motor(2,0);
-        }
-        //None of the above, go straight.
-        set_motor(1,127);
-        set_motor(2,127);
+        if(current_error < 10 && current_error > -10){
+        	//practically straight
+        	if(current_error>0){
+        		//slight right when line is on the  right
+        		set_motor(1, BASE_SPEED+5);
+        		set_motor(2, BASE_SPEED);
+        	} else if(current_error<0){
+        		//slight left when line is on the left
+        		set_motor(1, BASE_SPEED);
+        		set_motor(2, BASE_SPEED+5);
+        	} else {
+        		//dead straight
+        		set_motor(1, BASE_SPEED);
+        		set_motor(2, BASE_SPEED);
+        	}
+        } else if(current_error < -10){
+        	//line far off left
+        	while(current_error < -10){
+        		//hard code 90 deg left turn?
+        		//set_motor(1, BASE_SPEED);
+        		set_motor(2, BASE_SPEED);
+        	}
+        } else if(counter > 200){
+        	//T junction, turn left
+        	while(!(current_error<10 && current_error>-10)){
+        		set_motor(2, BASE_SPEED);
+        	}
+    	} else if(current_error > 10){
+    		while(current_error > 10){
+    			set_motor(1, BASE_SPEED);
+        		//set_motor(2, BASE_SPEED);
+    		}
+    	}
     }
 
     printf("%s\n","Switching to maze mode");
