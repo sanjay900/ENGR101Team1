@@ -73,49 +73,36 @@ int main (){
 
     printf("%s\n","Switching to maze mode");
 
-    double unc = 8;
-    //width of maze path - width of robot
-    //check units of return val of IR
-
-    while(1) {
+    //Maze solving code
+    while(1){
         double right = read_analog(2);
-        double left  = read_analog(1);
+        //double left = read_analog(1); do we need to read left if we just want to follow the right wall?
         double front = read_analog(0);
-        //double back = read_analog(A3);
-
-        if(0<right && right<unc){
-            if(front > 3) {
-                if(right - left > 1 && right - left < unc){
-                    //motor1 is left motor
-                    //motor2 is right motor
-                    set_motor(1, BASE_SPEED+5);
-                    set_motor(2, BASE_SPEED);
-                    //move trajectory slightly to the right
-                } else if (left - right > 1){
-                    set_motor(1, BASE_SPEED);
-                    set_motor(2, BASE_SPEED+5);
-                    //move trajectory slightly left
-                } else {
-                    set_motor(1, BASE_SPEED);
-                    set_motor(2, BASE_SPEED);
-                    //move robot forward
-                }
-            } else {
-                if(0 < left && left < unc){
-                    //turn around
-                    set_motor(1, -(BASE_SPEED));
-                    set_motor(2, BASE_SPEED);
-                } else {
-                    set_motor(1, BASE_SPEED/3);
-                    set_motor(2, BASE_SPEED);
-                    //turn left
-                }
+        double right_error = 0.0;
+        double left_error = 0.0;
+    
+        if(right > 8) {
+            //turn right
+            right_error = -(BASE_SPEED - 10);
+            //left wheel @ BASE_SPEED, right wheel @ 10
+        } else if(front > 4) {
+            //move forward, adjusting path according to right IR reading
+            if(right<3) {
+                right_error = -(right);
+                left_error = right;
+            } else if(right>5) {
+                right_error = right;
+                left_error = -(right);
             }
         } else {
-            set_motor(1, BASE_SPEED);
-            set_motor(2, BASE_SPEED/3);
-            //turn right;
+            //turn left
+            left_error = -(BASE_SPEED - 10);
+            //right wheel @ BASE_SPEED, left wheel @ 10
         }
+        int leftSpeed = (int)(BASE_SPEED+left_error);
+        int rightSpeed = (int)(BASE_SPEED+right_error);
+        set_motor(1, leftSpeed);
+        set_motor(2, rightSpeed);
     }
 }
 int lastTurn = 0;
