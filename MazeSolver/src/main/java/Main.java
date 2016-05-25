@@ -8,8 +8,8 @@ import java.util.Stack;
  * Created by sanjay on 22/04/16.
  */
 public class Main {
-    static int width = 20;
-    static int height = 20;
+    static int width = 5;
+    static int height = 5   ;
     static Main instance;
     //A list of current tiles
     //Why a hash set? Speed. comparing by hash is a lot faster than comparing two values
