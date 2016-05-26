@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <signal.h>
+#include <iostream>
+
 extern "C" int init(int level);
 extern "C" int connect_to_server( char server_addr[15],int port);
 extern "C" int send_to_server(char message[24]);
@@ -10,7 +12,7 @@ extern "C" int Sleep( int sec , int usec );
 extern "C" int read_analog(int ch_adc);
 extern "C" unsigned char get_pixel(int row,int col,int color);
 extern "C" int take_picture();
-static float kp = 2;
+static float kp = 1;
 static float ki = 0;
 static float kd = 0;
 static int BASE_SPEED = 200;
@@ -23,7 +25,7 @@ double proportional_signal;
 double integral_signal;
 double derivative_signal;
 void set_error();
-
+void print_image();
 bool pid();
 
 int get_average();
@@ -33,6 +35,7 @@ void signal_callback_handler(int signum)
 {
     //We caught sig 2 (ctrl+c)
     printf("Caught signal %d\n",signum);
+    Sleep(0,1000);
     //Kill motors
     set_motor(1,0);
     set_motor(2,0);
@@ -40,6 +43,7 @@ void signal_callback_handler(int signum)
     exit(signum);
 }
 bool pre_3 = true;
+int last_turn = 0;
 int main (){
     init(0);
     //Add a ctrl+c handler that stops the motors
@@ -54,24 +58,25 @@ int main (){
     send_to_server(message);*/
     while (1) {
         pid();
+        if (counter > 300)
         printf("%d\n",counter);
-        if (pre_3 && counter > 300) {
+        if (counter > 300 && !pre_3) {
+            set_motor(1, 0);
+            set_motor(2, 75);
+            Sleep(1,0);
+            continue;
+        }
+        if (counter > 300 && pre_3) {
+            set_motor(1, BASE_SPEED);
+            set_motor(2, BASE_SPEED);
+            Sleep(0,300000);
             pre_3 = false;
-            set_motor(1,BASE_SPEED-70);
-            set_motor(2,BASE_SPEED);
-            Sleep(1,850000);
-            BASE_SPEED = 50;
             continue;
         }
         int average = get_average();
         bool red = false;
         for(int i=0; i<320; i++){
-            if(get_pixel(i,170,3)<average && get_pixel(i,170,0) > 100){
-                printf("REDREDREDRED");
-                //red = true;
-                break;
-            }
-
+            printf("%f",(double)get_pixel(i,160,3)/(double)get_pixel(i,160,0));
         }
         if (red) {
             break;
@@ -116,59 +121,32 @@ int main (){
 bool pid() {
     set_error();
     if (counter > 0) {
-        printf("%d\n",counter);
-        if (first) {
-            total_error = total_error + current_error;
-            integral_signal = total_error * ki;
-            derivative_signal = (current_error - previous_error / 0.1) * kd;
-            proportional_signal = current_error * kp;
-            int pid =- int(proportional_signal+integral_signal+derivative_signal);
-            set_motor(1, (BASE_SPEED +  pid));
-            set_motor(2, (BASE_SPEED - pid));
-            return true;
-        } else {
-            printf("FOR");
-            set_motor(1,BASE_SPEED);
-            set_motor(2,BASE_SPEED);
-            return 0;
-        }
+        total_error = total_error + current_error;
+        integral_signal = total_error * ki;
+        derivative_signal = (current_error - previous_error / 0.1) * kd;
+        proportional_signal = current_error * kp;
+        int pid = -int(proportional_signal + integral_signal + derivative_signal);
+        set_motor(1, (BASE_SPEED + pid));
+        set_motor(2, (BASE_SPEED - pid));
+        return true;
         //If we loose the line, but are in the first two quadrants, use the previous
         //error to find the line
-    } else if (pre_3){
-        if (proportional_signal < 0 ) {
-            proportional_signal = -1;
-            set_motor(2, -30);
-            set_motor(1, 75);
-            return 0;
-        } else if (proportional_signal > 0){
+    } else {
+        if (proportional_signal > 0) {
             proportional_signal = 1;
             set_motor(2, 75);
             set_motor(1, -30);
             return 0;
-        }
-    } else {
-        //If not, scan vertical lines to the left and right and turn.
-        take_picture();
-        int average = get_average();
-        int look_ahead = 50;
 
-        for(int i=120-look_ahead; i<120; i++){
-            if(get_pixel(200,i,3)>average){
-                printf("Found left turn \n");
-                proportional_signal = 1;
-                set_motor(1, -50);
-                set_motor(2, 100);
-                return 0;
-            }
+        } else if (proportional_signal < 0) {
+            proportional_signal = -1;
+            set_motor(2, -30);
+            set_motor(1, 75);
+            return 0;
         }
-        printf("Found right turn \n");
-        proportional_signal = -1;
-        set_motor(1, 100);
-        set_motor(2, -50);
-        return 0;
+        printf("HOW");
+        return true;
     }
-    printf("HOW");
-    return true;
 }
 
 void set_error() {
@@ -178,7 +156,7 @@ void set_error() {
     int average = get_average();
     for(int i=0; i<320; i++){
         //If the grayness is > white, add to error
-        if(get_pixel(i,220,3)>average){
+        if(get_pixel(i,200,3)>average){
             current_error += (i-160);
             counter++;
             //Only the red is > 127, we hit the end, break out
@@ -187,5 +165,5 @@ void set_error() {
     current_error/=160;
 }
 int get_average() {
-    return 127;
+    return 120;
 }
