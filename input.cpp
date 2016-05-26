@@ -10,7 +10,7 @@ extern "C" int Sleep( int sec , int usec );
 extern "C" int read_analog(int ch_adc);
 extern "C" unsigned char get_pixel(int row,int col,int color);
 extern "C" int take_picture();
-static float kp = 1;
+static float kp = 2;
 static float ki = 0;
 static float kd = 0;
 static int BASE_SPEED = 200;
@@ -40,7 +40,6 @@ void signal_callback_handler(int signum)
     exit(signum);
 }
 bool pre_3 = true;
-bool first = true;
 int main (){
     init(0);
     //Add a ctrl+c handler that stops the motors
@@ -76,6 +75,41 @@ int main (){
         if (red) {
             break;
         }
+    }
+
+
+    printf("%s\n","Switching to maze mode");
+
+    //Maze solving code
+    while(1){
+        double right = read_analog(2);
+        //double left = read_analog(1); do we need to read left if we just want to follow the right wall?
+        double front = read_analog(0);
+        double right_error = 0.0;
+        double left_error = 0.0;
+
+        if(right > 8) {
+            //turn right
+            right_error = -(BASE_SPEED - 10);
+            //left wheel @ BASE_SPEED, right wheel @ 10
+        } else if(front > 4) {
+            //move forward, adjusting path according to right IR reading
+            if(right<3) {
+                right_error = -(right);
+                left_error = right;
+            } else if(right>5) {
+                right_error = right;
+                left_error = -(right);
+            }
+        } else {
+            //turn left
+            left_error = -(BASE_SPEED - 10);
+            //right wheel @ BASE_SPEED, left wheel @ 10
+        }
+        int leftSpeed = (int)(BASE_SPEED+left_error);
+        int rightSpeed = (int)(BASE_SPEED+right_error);
+        set_motor(1, leftSpeed);
+        set_motor(2, rightSpeed);
     }
 }
 bool pid() {
