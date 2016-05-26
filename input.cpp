@@ -67,6 +67,7 @@ int main (){
         bool red = false;
         for(int i=0; i<320; i++){
             if(get_pixel(i,170,3)<average && get_pixel(i,170,0) > 100){
+                printf("REDREDREDRED");
                 //red = true;
                 break;
             }
