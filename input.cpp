@@ -16,6 +16,7 @@ static float kp = 1;
 static float ki = 0;
 static float kd = 0;
 static int BASE_SPEED = 170;
+double left_signal = 0;
 
 float current_error = 0;
 int counter = 0;
@@ -57,15 +58,18 @@ int main (){
     receive_from_server(message);
     send_to_server(message);*/
     while (1) {
-        pid();
-        if (counter > 280)
-        printf("%d\n",counter);
-        if (counter > 300 && !pre_3) {
+        set_error();
+        if (!pre_3 &&left_signal > 20) {
+            printf("GOING LEFT (PRE3)");
+            proportional_signal = -1;
             set_motor(1, 10);
             set_motor(2, 75);
             Sleep(1,0);
             continue;
         }
+        if (counter > 280)
+            printf("%d\n",counter);
+
         if (counter > 300 && pre_3) {
             set_motor(1, BASE_SPEED);
             set_motor(2, BASE_SPEED);
@@ -73,10 +77,11 @@ int main (){
             pre_3 = false;
             continue;
         }
+        pid();
         bool red = false;
         for(int i=0; i<320; i++){
             if ((double)get_pixel(i,160,0)/(double)get_pixel(i,160,3) > 1.5) {
-                red = true;
+               // red = true;
             }
         }
         if (red) {
@@ -120,7 +125,6 @@ int main (){
     }
 }
 bool pid() {
-    set_error();
     if (counter > 0) {
         total_error = total_error + current_error;
         integral_signal = total_error * ki;
@@ -133,7 +137,7 @@ bool pid() {
         //If we loose the line, but are in the first two quadrants, use the previous
         //error to find the line
     } else {
-        if (proportional_signal > 0 || counter > 300) {
+        if (proportional_signal > 0 || (!pre_3 &&left_signal > 20)) {
             printf("GOING LEFT");
             proportional_signal = 1;
             set_motor(2, 75);
@@ -161,6 +165,9 @@ void set_error() {
         if(get_pixel(i,200,3)>average){
             current_error += (i-160);
             counter++;
+            if (i > 160 /*&& i < 200*/) {
+                left_signal++;
+            }
             //Only the red is > 127, we hit the end, break out
         }
     }
