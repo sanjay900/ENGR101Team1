@@ -133,7 +133,8 @@ bool pid() {
         //If we loose the line, but are in the first two quadrants, use the previous
         //error to find the line
     } else {
-        if (proportional_signal > 0) {
+        if (proportional_signal > 0 || counter > 200) {
+            printf("GOING LEFT");
             proportional_signal = 1;
             set_motor(2, 75);
             set_motor(1, -30);
