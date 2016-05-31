@@ -75,7 +75,7 @@ int main (){
         }
         bool red = false;
         for(int i=0; i<320; i++){
-            if ((double)get_pixel(i,160,0)/(double)get_pixel(i,160,3) > 1f) {
+            if ((double)get_pixel(i,160,0)/(double)get_pixel(i,160,3) > 1) {
                 red = true;
             }
         }
