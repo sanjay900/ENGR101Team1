@@ -15,7 +15,7 @@ extern "C" int take_picture();
 static float kp = 1;
 static float ki = 0;
 static float kd = 0;
-static int BASE_SPEED = 200;
+static int BASE_SPEED = 170;
 
 float current_error = 0;
 int counter = 0;
@@ -58,10 +58,10 @@ int main (){
     send_to_server(message);*/
     while (1) {
         pid();
-        if (counter > 300)
+        if (counter > 280)
         printf("%d\n",counter);
         if (counter > 300 && !pre_3) {
-            set_motor(1, 0);
+            set_motor(1, 10);
             set_motor(2, 75);
             Sleep(1,0);
             continue;
@@ -73,10 +73,11 @@ int main (){
             pre_3 = false;
             continue;
         }
-        int average = get_average();
         bool red = false;
         for(int i=0; i<320; i++){
-            printf("%f",(double)get_pixel(i,160,3)/(double)get_pixel(i,160,0));
+            if ((double)get_pixel(i,160,3)/(double)get_pixel(i,160,0) < 0.4f) {
+                red = true;
+            }
         }
         if (red) {
             break;
