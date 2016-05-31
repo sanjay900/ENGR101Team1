@@ -58,3 +58,12 @@ Hardware:
 - Changed positioning of RPi on board
 - Increased height to make room for battery placement
 To do: IR sensors
+
+31st May
+Hardware:
+- replaced wire connecting RPi to battery (damaged)
+- fixed wire connecting RPi to left motor
+Software:
+- potentially increase kp slightly (.2?) to prevent spinning out in q1, otherwise all good.
+- recheck code for q3
+- transition to maze code (red test)
