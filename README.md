@@ -67,3 +67,12 @@ Software:
 - potentially increase kp slightly (.2?) to prevent spinning out in q1, otherwise all good.
 - recheck code for q3
 - transition to maze code (red test)
+
+Actual Test
+
+Comments:
+- Don't use hot glue, it reduces recyclability
+- make sure switches are easily accessible
+- wires could've been tidier
+- camera mount could have been adjustable
+- battery was loose
